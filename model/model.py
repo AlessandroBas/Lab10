@@ -13,6 +13,22 @@ class Model:
         guadagno medio per spedizione >= threshold (euro)
         """
         # TODO
+        self._edges = DAO.read_spedizione()
+        self._nodes = DAO.read_hub()
+        self.G.clear()
+
+        for hub in self._nodes:
+            self.G.add_node(hub.id,obj=hub)
+
+        tratte = {}
+        for s in self._edges:
+            key = tuple((s.id_hub_origine, s.id_hub_destinazione))
+            tratte[key].append(s.valore_merce)
+        for (h1,h2), valori in tratte.items():
+            media=sum(valori)/len(valori)
+            if media >= threshold:
+                self.G.add_edge(h1,h2, peso=media)
+
 
     def get_num_edges(self):
         """
@@ -20,6 +36,7 @@ class Model:
         :return: numero di edges del grafo
         """
         # TODO
+        return self.G.number_of_edges()
 
     def get_num_nodes(self):
         """
@@ -27,6 +44,7 @@ class Model:
         :return: numero di nodi del grafo
         """
         # TODO
+        return self.G.number_of_nodes()
 
     def get_all_edges(self):
         """
@@ -34,4 +52,5 @@ class Model:
         :return: gli edges del grafo con gli attributi (il weight)
         """
         # TODO
+        return
 
