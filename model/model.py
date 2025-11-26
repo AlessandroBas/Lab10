@@ -13,16 +13,14 @@ class Model:
         guadagno medio per spedizione >= threshold (euro)
         """
         # TODO
+        self._dizionario_hub={}
         self._edges = DAO.read_spedizione()
         self._nodes = DAO.read_hub()
         self.G.clear()
 
-        for hub in self._nodes:
-            self.G.add_node(hub.id,obj=hub)
-
         tratte = {}
         for s in self._edges:
-            key = tuple((s.id_hub_origine, s.id_hub_destinazione))
+            key = tuple(sorted((s.id_hub_origine, s.id_hub_destinazione)))
             tratte[key].append(s.valore_merce)
         for (h1,h2), valori in tratte.items():
             media=sum(valori)/len(valori)
@@ -36,7 +34,7 @@ class Model:
         :return: numero di edges del grafo
         """
         # TODO
-        return self.G.number_of_edges()
+        return len(self.G.edges)
 
     def get_num_nodes(self):
         """
@@ -44,7 +42,7 @@ class Model:
         :return: numero di nodi del grafo
         """
         # TODO
-        return self.G.number_of_nodes()
+        return len(self.G.nodes())
 
     def get_all_edges(self):
         """

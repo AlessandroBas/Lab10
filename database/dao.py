@@ -1,4 +1,5 @@
 from database.DB_connect import DBConnect
+from model.archi import Archi
 from model.spedizione import Spedizione
 from model.compagnia import Compagnia
 from model.hub import Hub
@@ -91,3 +92,30 @@ class DAO:
             cnx.close()
         return result
 
+    @staticmethod
+    def read_archi(valore):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("❌ Errore di connessione al database.")
+            return None
+        query = """SELECT LEAST (s.id_hub_origine,s.id_hub_destinazione) as h1
+                    FROM spedizione
+                    GROUP BY id_hub_origine, id_hub_destinazione
+                 """
+        cursor = cnx.cursor(dictionary=True)
+        try:
+            cursor.execute(query,(valore,))
+            for row in cursor:
+                arco = Archi(row["h1"],
+                            row["h2"],
+                            row["valore_totale"],
+                            row["n_spedizione"],)
+                result.append(arco)
+        except Exception as e:
+            print(f"Errore durante la query read_archi: {e}")
+            result = None
+        finally:
+            cursor.close()
+            cnx.close()
+        return result
