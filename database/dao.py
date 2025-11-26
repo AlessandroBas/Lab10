@@ -99,10 +99,13 @@ class DAO:
         if cnx is None:
             print("❌ Errore di connessione al database.")
             return None
-        query = """SELECT LEAST (s.id_hub_origine,s.id_hub_destinazione) as h1
+        query = """SELECT 
+        					LEAST (s.id_hub_origine,s.id_hub_destinazione) AS h1
+                            GREATEST (s.id_hub_origine, s.id_hub_destinazione) AS h2
+                            SUM (s.valore_merce) AS valore_totale 
+                            CUONT (*) AS n_spedizioni
                     FROM spedizione
-                    GROUP BY id_hub_origine, id_hub_destinazione
-                 """
+                    GROUP BY h1, h2 """
         cursor = cnx.cursor(dictionary=True)
         try:
             cursor.execute(query,(valore,))
