@@ -13,20 +13,20 @@ class Model:
         guadagno medio per spedizione >= threshold (euro)
         """
         # TODO
-        self._dizionario_hub={}
-        self._edges = DAO.read_spedizione()
+        self._edges = DAO.read_archi(threshold)
         self._nodes = DAO.read_hub()
         self.G.clear()
+        mappa_hub = {hub.id: hub for hub in self._nodes}
 
-        tratte = {}
-        for s in self._edges:
-            key = tuple(sorted((s.id_hub_origine, s.id_hub_destinazione)))
-            tratte[key].append(s.valore_merce)
-        for (h1,h2), valori in tratte.items():
-            media=sum(valori)/len(valori)
-            if media >= threshold:
-                self.G.add_edge(h1,h2, peso=media)
-
+        for arco in self._edges:
+            h1 = arco.h1
+            h2 = arco.h2
+            if h1 in mappa_hub:
+                self.G.add_node(h1, obj=mappa_hub[h1])
+            if h2 in mappa_hub:
+                self.G.add_node(h2, obj=mappa_hub[h2])
+            peso = arco.valore_medio
+            self.G.add_edge(h1, h2, weight=peso)
 
     def get_num_edges(self):
         """
@@ -42,7 +42,7 @@ class Model:
         :return: numero di nodi del grafo
         """
         # TODO
-        return len(self.G.nodes())
+        return len(self.G.nodes)
 
     def get_all_edges(self):
         """
@@ -50,5 +50,13 @@ class Model:
         :return: gli edges del grafo con gli attributi (il weight)
         """
         # TODO
-        return
+        result = []
+        mappa_hub = {hub.id: hub for hub in self._nodes}
+        for h1, h2, data in self.G.edges(data=True):
+            peso = round(data.get("weight"),2)
+            hub1 = mappa_hub[h1]
+            hub2 = mappa_hub[h2]
+            str =(f"[{hub1} -> {hub2}] -- Guadagno Medio Per Spedizione {peso}$")
+            result.append(str)
+        return result
 

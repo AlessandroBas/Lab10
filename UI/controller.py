@@ -23,7 +23,9 @@ class Controller:
             self._view.lista_visualizzazione.controls.clear()
             self._view.lista_visualizzazione.controls.append(ft.Text(f"numero Hub: {self._model.get_num_nodes()}"))
             self._view.lista_visualizzazione.controls.append(ft.Text(f"numero Tratte: {self._model.get_num_edges()}"))
-            self._view.lista_visualizzazione.controls.append(ft.Text(f"Tratte che superano il guadagno minimo: {self._model.get_all_edges()}"))
+            edges = self._model.get_all_edges()
+            for i in range (len(edges)):
+                self._view.lista_visualizzazione.controls.append(ft.Text(f"{i+1}) {edges[i]}"))
             self._view.update()
         except ValueError:
             self._view.show_alert("Valore inseito non valido ")

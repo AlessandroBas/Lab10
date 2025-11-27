@@ -1,7 +1,5 @@
 from database.DB_connect import DBConnect
 from model.archi import Archi
-from model.spedizione import Spedizione
-from model.compagnia import Compagnia
 from model.hub import Hub
 
 class DAO:
@@ -10,68 +8,13 @@ class DAO:
     """
     # TODO
     @staticmethod
-    def read_spedizione():
-        cnx = DBConnect.get_connection()
-        result = []
-        if cnx is None:
-            print("❌ Errore di connessione al database.")
-            return None
-        query = """SELECT * FROM spedizione"""
-        cursor = cnx.cursor(dictionary=True)
-        try:
-            cursor.execute(query)
-            for row in cursor:
-                spedizione = Spedizione(row["id"],
-                                        row["id_compagnia"],
-                                        row["numero_tracking"],
-                                        row["id_hub_origine"],
-                                        row["id_hub_destinazione"],
-                                        row["data_ritiro_programmata"],
-                                        row["distanza"],
-                                        row["data_consegna"],
-                                        row["valore_merce"],)
-                result.append(spedizione)
-
-        except Exception as e:
-            print(f"Errore durante la query read_spedizione: {e}")
-            result = None
-        finally:
-            cursor.close()
-            cnx.close()
-        return result
-
-    @staticmethod
-    def read_compagnia():
-        cnx = DBConnect.get_connection()
-        result = []
-        if cnx is None:
-            print("❌ Errore di connessione al database.")
-            return None
-        query = "SELECT * FROM compagnia"
-        cursor = cnx.cursor(dictionary=True)
-        try:
-            cursor.execute(query)
-            for row in cursor:
-                compagnia = Compagnia(row["id"],
-                                      row["codice"],
-                                      row["nome"],)
-                result.append(compagnia)
-        except Exception as e:
-            print(f"Errore durante la query read_compagnia: {e}")
-            result = None
-        finally:
-            cursor.close()
-            cnx.close()
-        return result
-
-    @staticmethod
     def read_hub():
         cnx = DBConnect.get_connection()
         result = []
         if cnx is None:
             print("❌ Errore di connessione al database.")
             return None
-        query = "SELECT * FROM hub"
+        query = """ SELECT * FROM hub """
         cursor = cnx.cursor(dictionary=True)
         try:
             cursor.execute(query)
@@ -100,20 +43,19 @@ class DAO:
             print("❌ Errore di connessione al database.")
             return None
         query = """SELECT 
-        					LEAST (s.id_hub_origine,s.id_hub_destinazione) AS h1
-                            GREATEST (s.id_hub_origine, s.id_hub_destinazione) AS h2
-                            SUM (s.valore_merce) AS valore_totale 
-                            CUONT (*) AS n_spedizioni
-                    FROM spedizione
-                    GROUP BY h1, h2 """
+                     LEAST(s.id_hub_origine, s.id_hub_destinazione) AS h1,
+                     GREATEST(s.id_hub_origine, s.id_hub_destinazione) AS h2,
+                     AVG(s.valore_merce) AS valore_medio
+                   FROM spedizione s
+                   GROUP BY h1, h2
+                   HAVING valore_medio >= %s """
         cursor = cnx.cursor(dictionary=True)
         try:
-            cursor.execute(query,(valore,))
+            cursor.execute(query,(valore, ))
             for row in cursor:
                 arco = Archi(row["h1"],
                             row["h2"],
-                            row["valore_totale"],
-                            row["n_spedizione"],)
+                            row["valore_medio"],)
                 result.append(arco)
         except Exception as e:
             print(f"Errore durante la query read_archi: {e}")

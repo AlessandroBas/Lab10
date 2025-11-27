@@ -4,14 +4,13 @@ from dataclasses import dataclass
 class Archi:
     h1: int
     h2: int
-    valore_totale: float
-    n_spedizioni: int
+    valore_medio: float
 
     def __str__(self):
-        return f'{self.h1} {self.h2} {self.valore_totale}'
+        return f'{self.h1} {self.h2} {self.valore_medio}'
 
     def __repr__(self):
-        return f'{self.h1} {self.h2} {self.valore_totale}'
+        return f'{self.h1} {self.h2} {self.valore_medio}'
 
-    def get_valore_medio(self):
-        return self.valore_totale / self.n_spedizioni if self.n_spedizioni > 0 else 0
+    def __eq__(self, other):
+        return isinstance(other, Archi) and self.h1 == other.h1 and self.h2 == other.h2
